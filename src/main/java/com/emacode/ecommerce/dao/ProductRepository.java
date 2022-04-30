@@ -16,4 +16,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> { //  <E
     // Spring Data REST automatically exposes the endpoints http://localhost:8080/api/products/search/findByCategoryId?id=4
     Page<Product> findByCategoryId(@RequestParam("id") Long id, Pageable pageable);
 
+    // 名前の部分一致で検索するクエリ
+    // SELECT * FROM Product p WHERE p.name LIKE CONCAT('%', :name, '%');
+    // endpoint: http://localhost:8080/api/products/search/findByNameContaining?name=Python
+    Page<Product> findByNameContaining(@RequestParam("name") String name, Pageable pageable);
+
 }
