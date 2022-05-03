@@ -1,7 +1,9 @@
 package com.emacode.ecommerce.config;
 
+import com.emacode.ecommerce.entity.Country;
 import com.emacode.ecommerce.entity.Product;
 import com.emacode.ecommerce.entity.ProductCategory;
+import com.emacode.ecommerce.entity.State;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
@@ -31,21 +33,25 @@ public class MyDataRestConfig implements RepositoryRestConfigurer {
 
         HttpMethod[] theUnsupportedAction = {HttpMethod.PUT, HttpMethod.POST, HttpMethod.DELETE};
         // disable Http Methods for Product: PUT POST DELETE
+        disableHttpMethod(Product.class, config, theUnsupportedAction);
+
+        // disable Http Methods for ProductCategory: PUT POST DELETE
+        disableHttpMethod(ProductCategory.class, config, theUnsupportedAction);
+
+        disableHttpMethod(Country.class, config, theUnsupportedAction);
+        disableHttpMethod(State.class, config, theUnsupportedAction);
+
+        // call an internal helper method
+        exposeIds(config);
+    }
+
+    private void disableHttpMethod(Class theClass,RepositoryRestConfiguration config, HttpMethod[] theUnsupportedAction) {
         config.getExposureConfiguration()
-                .forDomainType(Product.class)
+                .forDomainType(theClass)
                 // single item
                 .withItemExposure((metadata, httpMethods) -> httpMethods.disable(theUnsupportedAction))
                 // collection
                 .withCollectionExposure((metadata, httpMethods) -> httpMethods.disable(theUnsupportedAction));
-
-        // disable Http Methods for ProductCategory: PUT POST DELETE
-        config.getExposureConfiguration()
-                .forDomainType(ProductCategory.class)
-                .withItemExposure((metadata, httpMethods) -> httpMethods.disable(theUnsupportedAction))
-                .withCollectionExposure((metadata, httpMethods) -> httpMethods.disable(theUnsupportedAction));
-
-        // call an internal helper method
-        exposeIds(config);
     }
 
     private void exposeIds(RepositoryRestConfiguration config) {
