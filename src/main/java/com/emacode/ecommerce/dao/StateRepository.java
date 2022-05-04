@@ -17,3 +17,7 @@ public interface StateRepository extends JpaRepository<State, Integer> {
     // http://localhost:8080/api/states/search/findByCountryCode?code=US
     List<State> findByCountryCode(@Param("code") String code);
 }
+
+//  Spring Data REST is very limited in terms of customization
+//  e.g. for custom business logic and processing, create a custom controller and service
+
