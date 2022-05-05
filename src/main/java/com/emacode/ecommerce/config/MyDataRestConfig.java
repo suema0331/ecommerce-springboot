@@ -5,6 +5,7 @@ import com.emacode.ecommerce.entity.Product;
 import com.emacode.ecommerce.entity.ProductCategory;
 import com.emacode.ecommerce.entity.State;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
@@ -21,17 +22,22 @@ import java.util.Set;
 @Configuration // to be scanned by Spring
 public class MyDataRestConfig implements RepositoryRestConfigurer {
 
+    //  read value from application.properties
+    @Value("${allowed.origins}")
+    private String[] theAllowedOrigins;
+
     private EntityManager entityManager;
     @Autowired
     public MyDataRestConfig(EntityManager theEntityManager){
         entityManager = theEntityManager;
     }
 
+    // @RestController configuration is separate from Spring Data REST configuration
     @Override
     public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config, CorsRegistry cors) {
         RepositoryRestConfigurer.super.configureRepositoryRestConfiguration(config, cors);
 
-        HttpMethod[] theUnsupportedAction = {HttpMethod.PUT, HttpMethod.POST, HttpMethod.DELETE};
+        HttpMethod[] theUnsupportedAction = {HttpMethod.PUT, HttpMethod.POST, HttpMethod.DELETE, HttpMethod.PATCH};
         // disable Http Methods for Product: PUT POST DELETE
         disableHttpMethod(Product.class, config, theUnsupportedAction);
 
@@ -43,6 +49,10 @@ public class MyDataRestConfig implements RepositoryRestConfigurer {
 
         // call an internal helper method
         exposeIds(config);
+
+        // configure cors mapping
+        // config.getBasePath() is the same as application.properties
+        cors.addMapping(config.getBasePath() + "/**").allowedOrigins(theAllowedOrigins);
     }
 
     private void disableHttpMethod(Class theClass,RepositoryRestConfiguration config, HttpMethod[] theUnsupportedAction) {
